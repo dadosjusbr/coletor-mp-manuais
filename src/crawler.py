@@ -3,8 +3,8 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 import io
 import pandas as pd
-import os
 import pathlib
+import sys
 
 STATUS_DATA_UNAVAILABLE = 4
 
@@ -46,7 +46,10 @@ def consult_list(orgao, mes, ano):
 
     # Se os arquivos referentes ao órgão/mês/ano não existirem, retornamos status 4
     if filter_list.empty:
-        os._exit(STATUS_DATA_UNAVAILABLE)
+        sys.stderr.write(
+                f"Não existe planilhas para {orgao}/{mes}/{ano}."
+            )
+        sys.exit(STATUS_DATA_UNAVAILABLE)
 
     return filter_list
 
