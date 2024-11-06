@@ -107,19 +107,22 @@ def create_csv(files):
         csv_writer.writerows([["orgao", "mes", "ano", "arquivo", "id_arquivo", "data"]])
 
         for file in files:
-            # removendo a extensão
-            filename = os.path.splitext(file["name"])[0]
+            # @old é o nome da pasta criada para armazenar planilhas "velhas",
+            # i.e. que foram baixadas, mas estavam quebradas/erradas e foram armazenadas novas 
+            if file['name'] != '@old':
+                # removendo a extensão
+                filename = os.path.splitext(file["name"])[0]
 
-            # Dividir a string pelo delimitador '-'
-            parts = filename.split("-")
+                # Dividir a string pelo delimitador '-'
+                parts = filename.split("-")
 
-            orgao = parts[0].lower()
-            mes = parts[2]
-            ano = parts[3]
+                orgao = parts[0].lower()
+                mes = parts[2]
+                ano = parts[3]
 
-            csv_writer.writerows(
-                [[orgao, mes, ano, file["name"], file["id"], file["createdTime"]]]
-            )
+                csv_writer.writerows(
+                    [[orgao, mes, ano, file["name"], file["id"], file["createdTime"]]]
+                )
 
     return list_path
 
