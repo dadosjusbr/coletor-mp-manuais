@@ -1,6 +1,8 @@
 import sys
 import os
 import crawler
+import json
+from google.oauth2 import service_account
 
 
 if "COURT" in os.environ:
@@ -26,6 +28,21 @@ if "OUTPUT_FOLDER" in os.environ:
 else:
     output_path = "./output"
     
+if "CREDENTIALS" in os.environ:
+    credentials = os.environ["CREDENTIALS"]
+    credentials = json.loads(credentials)
+
+    with open(f"{output_path}/credentials.json", "w", encoding="utf-8") as arquivo:
+        json.dump(credentials, arquivo, ensure_ascii=False, indent=4)
+        
+    # Autentica usando as credenciais da conta de serviço
+    creds = service_account.Credentials.from_service_account_file(
+        "credentials.json", scopes=["https://www.googleapis.com/auth/drive.readonly"]
+    )
+else:
+    sys.stderr.write("Invalid arguments, missing parameter: 'CREDENTIALS'.\n")
+    os._exit(1)
+    
 # ID da lista no drive, referente às planilhas baixadas manualmente
 if "FILE_ID" in os.environ:
     file_id = os.environ["FILE_ID"]
@@ -34,13 +51,13 @@ else:
     os._exit(1)
     
 # Baixamos a lista de arquivos
-crawler.download_list(file_id)
+crawler.download_list(file_id, creds)
 
 # Consultamos se os arquivos existem
 result = crawler.consult_list(court, month, year)
 
 # Baixamos os arquivos
-stdout = crawler.download_files(output_path, result)
+stdout = crawler.download_files(output_path, result, creds)
 
 # Retornamos o timestamp e o caminho dos arquivos
 print('\n'.join(stdout))

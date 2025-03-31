@@ -5,6 +5,7 @@ import os
 import csv
 import sys
 from dotenv import load_dotenv
+import json
 
 load_dotenv()
 
@@ -23,16 +24,20 @@ else:
     sys.stderr.write("Invalid arguments, missing parameter: 'FILE_ID'.\n")
     os._exit(1)
 
-# Caminho para o arquivo JSON da conta de serviço
-SERVICE_ACCOUNT_FILE = "credentials.json"
+if "CREDENTIALS" in os.environ:
+    credentials = os.environ["CREDENTIALS"]
+    credentials = json.loads(credentials)
 
-# Escopos necessários para acessar o Google Drive
-SCOPES = ["https://www.googleapis.com/auth/drive"]
-
-# Autentica usando as credenciais da conta de serviço
-creds = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=SCOPES
-)
+    with open(f"credentials.json", "w", encoding="utf-8") as arquivo:
+        json.dump(credentials, arquivo, ensure_ascii=False, indent=4)
+        
+    # Autentica usando as credenciais da conta de serviço
+    creds = service_account.Credentials.from_service_account_file(
+        "credentials.json", scopes=["https://www.googleapis.com/auth/drive"]
+    )
+else:
+    sys.stderr.write("Invalid arguments, missing parameter: 'CREDENTIALS'.\n")
+    os._exit(1)
 
 # Conecta-se à API do Google Drive
 service = build("drive", "v3", credentials=creds)

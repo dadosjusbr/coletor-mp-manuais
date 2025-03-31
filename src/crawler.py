@@ -1,4 +1,3 @@
-from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 import io
@@ -8,19 +7,8 @@ import sys
 
 STATUS_DATA_UNAVAILABLE = 4
 
-# Caminho para o arquivo JSON da conta de serviço
-SERVICE_ACCOUNT_FILE = "credentials.json"
 
-# Escopos necessários para acessar o Google Drive
-SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
-
-# Autentica usando as credenciais da conta de serviço
-creds = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=SCOPES
-)
-
-
-def download_list(file_id):
+def download_list(file_id, creds):
     # Conecta-se à API do Google Drive
     service = build("drive", "v3", credentials=creds)
 
@@ -54,7 +42,7 @@ def consult_list(orgao, mes, ano):
     return filter_list
 
 
-def download_files(output_path, filter_list):
+def download_files(output_path, filter_list, creds):
     # Pegamos a data e hora que o primeiro arquivo, do respectivo órgão/mês/ano, foi armazenado
     timestamp = filter_list.data.min()
     ts_files = [timestamp]
