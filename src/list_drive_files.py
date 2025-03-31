@@ -24,20 +24,21 @@ else:
     sys.stderr.write("Invalid arguments, missing parameter: 'FILE_ID'.\n")
     os._exit(1)
 
-if "CREDENTIALS" in os.environ:
-    credentials = os.environ["CREDENTIALS"]
-    credentials = json.loads(credentials)
+if not os.path.exists("./credentials.json"):
+    if "CREDENTIALS" in os.environ:
+        credentials = os.environ["CREDENTIALS"]
+        credentials = json.loads(credentials)
 
-    with open(f"credentials.json", "w", encoding="utf-8") as arquivo:
-        json.dump(credentials, arquivo, ensure_ascii=False, indent=4)
-        
-    # Autentica usando as credenciais da conta de serviço
-    creds = service_account.Credentials.from_service_account_file(
-        "credentials.json", scopes=["https://www.googleapis.com/auth/drive"]
-    )
-else:
-    sys.stderr.write("Invalid arguments, missing parameter: 'CREDENTIALS'.\n")
-    os._exit(1)
+        with open(f"credentials.json", "w", encoding="utf-8") as arquivo:
+            json.dump(credentials, arquivo, ensure_ascii=False, indent=4)
+    else:
+        sys.stderr.write("Invalid arguments, missing parameter: 'CREDENTIALS'.\n")
+        os._exit(1)
+    
+# Autentica usando as credenciais da conta de serviço
+creds = service_account.Credentials.from_service_account_file(
+    "credentials.json", scopes=["https://www.googleapis.com/auth/drive"]
+)
 
 # Conecta-se à API do Google Drive
 service = build("drive", "v3", credentials=creds)
